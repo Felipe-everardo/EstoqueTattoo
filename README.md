@@ -81,6 +81,3 @@ Exemplo:
 - Controle de tintas abertas na bancada
 - Atualizacao do nivel restante de tintas
 
-## Observacoes
-
-O banco SQLite gerado localmente fica em `backend/EstoqueLiaTattoo/Data/estoque.db` e nao precisa ser enviado para o GitHub.
