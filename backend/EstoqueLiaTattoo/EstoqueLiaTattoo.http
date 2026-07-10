@@ -1,0 +1,6 @@
+@EstoqueLiaTattoo_HostAddress = http://localhost:5207
+
+GET {{EstoqueLiaTattoo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
