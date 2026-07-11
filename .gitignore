@@ -33,3 +33,5 @@ yarn-error.log*
 # OS
 Thumbs.db
 Desktop.ini
+frontend/src/*.bak-*
+frontend/src/*.bak-*

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import materialService from '../services/materialService';
 import tintaService from '../services/tintaService';
 
@@ -128,7 +128,7 @@ const Bancada = () => {
             {erro && <div className="alert alert-danger">{erro}</div>}
             {sucesso && <div className="alert alert-success">{sucesso}</div>}
 
-            <section className="stats-grid">
+            <section className="stats-grid compact">
                 <div className="stat-card">
                     <span>Tintas em uso</span>
                     <strong>{tintasEmUso.length}</strong>
@@ -196,3 +196,4 @@ const Bancada = () => {
 };
 
 export default Bancada;
+
