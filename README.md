@@ -10,9 +10,9 @@ Este projeto foi desenvolvido como estudo prático de integração entre front-e
 
 > As imagens abaixo podem ser atualizadas com capturas reais da aplicação rodando localmente.
 
-| Materiais | Bancada | Movimentações |
+| Dashboard | Materiais | Bancada |
 | --- | --- | --- |
-| ![Tela de materiais](docs/images/materiais.png) | ![Tela da bancada](docs/images/bancada.png) | ![Tela de movimentações](docs/images/movimentacoes.png) |
+| ![Dashboard](docs/images/dashboard.png) | ![Tela de materiais](docs/images/materiais.png) | ![Tela da bancada](docs/images/bancada.png) |  
 
 ## Funcionalidades
 
