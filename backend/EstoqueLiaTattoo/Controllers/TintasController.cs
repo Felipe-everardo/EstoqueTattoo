@@ -1,9 +1,6 @@
-﻿using EstoqueLiaTattoo.Models;
+using EstoqueLiaTattoo.DTOs;
 using EstoqueLiaTattoo.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using static EstoqueLiaTattoo.DTOs.TintaResponseDTO;
 
 namespace EstoqueLiaTattoo.Controllers;
 
@@ -19,43 +16,66 @@ public class TintasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListarTintasAbertas()
+    public async Task<ActionResult<IEnumerable<TintaResponseDTO>>> ListarTintasAbertas()
     {
-        var lista = await _service.ListarItensEmUso();
-        return Ok(lista);
+        return Ok(await _service.ListarItensEmUso());
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<TintaResponseDTO>> AbrirNovaTinta(AbrirTintaDTO dto)
+    {
+        var resultado = await _service.AbrirFrasco(dto);
+        if (!resultado.Success)
+        {
+            return BadRequest(Error(resultado.Code, resultado.Message));
+        }
+
+        return CreatedAtAction(nameof(ListarTintasAbertas), new { id = resultado.Value!.Id }, resultado.Value);
     }
 
     [HttpPost("abrir")]
-    public async Task<IActionResult> AbrirNovaTinta([FromBody] AbrirTintaDTO dto)
+    public Task<ActionResult<TintaResponseDTO>> AbrirNovaTintaCompatibilidade(AbrirTintaDTO dto)
     {
-        var sucesso = await _service.AbrirFrasco(dto);
+        return AbrirNovaTinta(dto);
+    }
 
-        if (!sucesso)
+    [HttpPut("{id:int}/nivel")]
+    public async Task<ActionResult<TintaResponseDTO>> AtualizarConsumo(int id, AtualizarConsumoTintaDTO dto)
+    {
+        var resultado = await _service.AtualizarPorcentagem(id, dto);
+        if (!resultado.Success)
         {
-            return BadRequest("Não foi possível abrir a tinta. Verifique se há estoque disponível.");
+            return NotFound(Error(resultado.Code, resultado.Message));
         }
 
-        return Ok(new { mensagem = "Frasco aberto com sucesso!" });
+        return Ok(resultado.Value);
     }
 
     [HttpPut("atualizar")]
-    public async Task<IActionResult> AtualizarConsumo([FromBody] AtualizarConsumoDTO dto)
+    public Task<ActionResult<TintaResponseDTO>> AtualizarConsumoCompatibilidade(AtualizarConsumoCompatibilidadeDTO dto)
     {
-        var sucesso = await _service.AtualizarPorcentagem(dto);
-
-        if (!sucesso) return NotFound("Tinta não encontrada.");
-
-        return Ok(new { mensagem = "Nível de tinta atualizado." });
+        return AtualizarConsumo(dto.Id, new AtualizarConsumoTintaDTO
+        {
+            NovaPorcentagem = dto.NovaPorcentagem
+        });
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> JogarFora(int id)
     {
-        var sucesso = await _service.DescartarItem(id);
+        return await _service.DescartarItem(id)
+            ? NoContent()
+            : NotFound(Error("INK_NOT_FOUND", "Item da bancada não encontrado."));
+    }
 
-        if (!sucesso) return NotFound("Tinta não encontrada.");
+    private static ApiErrorResponse Error(string code, string message)
+    {
+        return new ApiErrorResponse { Code = code, Message = message };
+    }
 
-        return NoContent();
+    public class AtualizarConsumoCompatibilidadeDTO
+    {
+        public int Id { get; set; }
+        public int NovaPorcentagem { get; set; }
     }
 }
-

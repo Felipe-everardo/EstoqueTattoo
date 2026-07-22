@@ -1,4 +1,4 @@
-﻿using EstoqueLiaTattoo.Data;
+using EstoqueLiaTattoo.Data;
 using EstoqueLiaTattoo.DTOs;
 using EstoqueLiaTattoo.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,58 +13,57 @@ public class MaterialService : IMaterialService
 
     public async Task<IEnumerable<MaterialResponseDTO>> ListarTodosAsync()
     {
-        return await _context.Material.Include(m => m.Categoria)
+        return await _context.Material
+            .Include(m => m.Categoria)
             .Where(m => m.IsAtivo)
-            .Select(m => new MaterialResponseDTO
-            {
-                Id = m.Id,
-                Nome = m.Nome,
-                QuantidadeAtual = m.QuantidadeAtual,
-                QuantidadeMinima = m.QuantidadeMinima,
-                PrecoUnitario = m.PrecoUnitario,
-                NomeCategoria = m.Categoria != null ? m.Categoria.Nome : "Sem Categoria"
-            }).ToListAsync();
+            .OrderBy(m => m.Nome)
+            .Select(m => ToResponseDto(m))
+            .ToListAsync();
     }
 
     public async Task<MaterialResponseDTO?> ObterPorIdAsync(int id)
     {
-        var m = await _context.Material.Include(m => m.Categoria).FirstOrDefaultAsync(m => m.Id == id && m.IsAtivo);
-        if (m == null) return null;
+        var material = await _context.Material
+            .Include(m => m.Categoria)
+            .FirstOrDefaultAsync(m => m.Id == id && m.IsAtivo);
 
-        return new MaterialResponseDTO
-        {
-            Id = m.Id,
-            Nome = m.Nome,
-            QuantidadeAtual = m.QuantidadeAtual,
-            QuantidadeMinima = m.QuantidadeMinima,
-            PrecoUnitario = m.PrecoUnitario,
-            NomeCategoria = m.Categoria?.Nome ?? "Sem Categoria"
-        };
+        return material == null ? null : ToResponseDto(material);
     }
 
     public async Task<IEnumerable<MaterialResponseDTO>> ListarCriticosAsync()
     {
-        return await _context.Material.Include(m => m.Categoria)
+        return await _context.Material
+            .Include(m => m.Categoria)
             .Where(m => m.IsAtivo && m.QuantidadeAtual <= m.QuantidadeMinima)
-            .Select(m => new MaterialResponseDTO
-            {
-                Id = m.Id,
-                Nome = m.Nome,
-                QuantidadeAtual = m.QuantidadeAtual,
-                QuantidadeMinima = m.QuantidadeMinima,
-                PrecoUnitario = m.PrecoUnitario,
-                NomeCategoria = m.Categoria != null ? m.Categoria.Nome : "Sem Categoria"
-            }).ToListAsync();
+            .OrderBy(m => m.Nome)
+            .Select(m => ToResponseDto(m))
+            .ToListAsync();
     }
 
-    public async Task<Material> CriarAsync(Material material)
+    public async Task<ServiceResult<MaterialResponseDTO>> CriarAsync(CriarMaterialDTO dto)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var categoriaExiste = await _context.Categoria.AnyAsync(c => c.Id == dto.CategoriaId);
+        if (!categoriaExiste)
+        {
+            return ServiceResult<MaterialResponseDTO>.Fail(
+                "CATEGORY_NOT_FOUND",
+                "A categoria informada não existe.");
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
-            var quantidadeInicial = material.QuantidadeAtual;
-            material.QuantidadeAtual = 0;
+            var quantidadeInicial = dto.QuantidadeAtual;
+            var material = new Material
+            {
+                Nome = dto.Nome.Trim(),
+                CategoriaId = dto.CategoriaId,
+                QuantidadeAtual = 0,
+                QuantidadeMinima = dto.QuantidadeMinima,
+                PrecoUnitario = dto.PrecoUnitario,
+                IsAtivo = true
+            };
 
             _context.Material.Add(material);
             await _context.SaveChangesAsync();
@@ -85,20 +84,31 @@ public class MaterialService : IMaterialService
             }
 
             await transaction.CommitAsync();
-            return material;
+
+            var criado = await ObterPorIdAsync(material.Id);
+            return ServiceResult<MaterialResponseDTO>.Ok(criado!);
         }
         catch
         {
             await transaction.RollbackAsync();
-            throw;
+            return ServiceResult<MaterialResponseDTO>.Fail(
+                "MATERIAL_CREATE_FAILED",
+                "Não foi possível cadastrar o material.");
         }
     }
 
     public async Task<bool> AtualizarAsync(Material material)
     {
         _context.Entry(material).State = EntityState.Modified;
-        try { await _context.SaveChangesAsync(); return true; }
-        catch { return false; }
+        try
+        {
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeletarAsync(int id)
@@ -109,5 +119,18 @@ public class MaterialService : IMaterialService
         material.IsAtivo = false;
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    private static MaterialResponseDTO ToResponseDto(Material material)
+    {
+        return new MaterialResponseDTO
+        {
+            Id = material.Id,
+            Nome = material.Nome,
+            QuantidadeAtual = material.QuantidadeAtual,
+            QuantidadeMinima = material.QuantidadeMinima,
+            PrecoUnitario = material.PrecoUnitario,
+            NomeCategoria = material.Categoria?.Nome ?? "Sem Categoria"
+        };
     }
 }

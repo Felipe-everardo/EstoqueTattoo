@@ -2,6 +2,7 @@
 import Materiais from './pages/Materiais';
 import Movimentacoes from './pages/Movimentacoes';
 import Bancada from './pages/Bancada';
+import Dashboard from './pages/Dashboard';
 
 function App() {
     return (
@@ -20,6 +21,10 @@ function App() {
                         <nav className="app-nav" aria-label="Navegacao principal">
                             <span className="nav-section-label">Estoque</span>
                             <NavLink className={({ isActive }) => isActive ? 'app-nav-link active' : 'app-nav-link'} to="/">
+                                <span className="nav-indicator" />
+                                Dashboard
+                            </NavLink>
+                            <NavLink className={({ isActive }) => isActive ? 'app-nav-link active' : 'app-nav-link'} to="/materiais">
                                 <span className="nav-indicator" />
                                 Materiais
                             </NavLink>
@@ -42,7 +47,8 @@ function App() {
 
                 <main className="app-main">
                     <Routes>
-                        <Route path="/" element={<Materiais />} />
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/materiais" element={<Materiais />} />
                         <Route path="/bancada" element={<Bancada />} />
                         <Route path="/movimentacoes" element={<Movimentacoes />} />
                     </Routes>

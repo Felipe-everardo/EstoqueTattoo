@@ -1,4 +1,4 @@
-﻿using EstoqueLiaTattoo.Data;
+using EstoqueLiaTattoo.Data;
 using EstoqueLiaTattoo.DTOs;
 using EstoqueLiaTattoo.Models;
 using Microsoft.EntityFrameworkCore;
@@ -18,76 +18,79 @@ public class MovimentacaoService : IMovimentacaoServico
     {
         return await _context.Movimentacao
             .Include(m => m.Material)
-            .OrderByDescending(m => m.Data) // Histórico: mais recentes primeiro
-            .Select(m => new MovimentacaoResponseDTO
-            {
-                Id = m.Id,
-                MaterialId = m.MaterialId,
-                NomeMaterial = m.Material != null ? m.Material.Nome : "Material Excluído",
-                Quantidade = m.Quantidade,
-                Tipo = m.Tipo,
-                Data = m.Data,
-                Observacao = m.Observacao
-            }).ToListAsync();
+            .OrderByDescending(m => m.Data)
+            .Select(m => ToResponseDto(m))
+            .ToListAsync();
     }
 
     public async Task<MovimentacaoResponseDTO?> ObterPorIdAsync(int id)
     {
-        var m = await _context.Movimentacao
+        var movimentacao = await _context.Movimentacao
            .Include(m => m.Material)
            .FirstOrDefaultAsync(m => m.Id == id);
 
-        if (m == null) return null;
-
-        return new MovimentacaoResponseDTO
-        {
-            Id = m.Id,
-            MaterialId = m.MaterialId,
-            NomeMaterial = m.Material != null ? m.Material.Nome : "Material Excluído",
-            Quantidade = m.Quantidade,
-            Tipo = m.Tipo,
-            Data = m.Data,
-            Observacao = m.Observacao
-        };
+        return movimentacao == null ? null : ToResponseDto(movimentacao);
     }
 
-    public async Task<Movimentacao?> ProcessarMovimentacaoAsync(Movimentacao movimentacao)
+    public async Task<ServiceResult<MovimentacaoResponseDTO>> ProcessarMovimentacaoAsync(RegistrarMovimentacaoDTO dto)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
         try
         {
-            var material = await _context.Material.FindAsync(movimentacao.MaterialId);
-            if (material == null) return null;
+            var material = await _context.Material.FirstOrDefaultAsync(m => m.Id == dto.MaterialId && m.IsAtivo);
+            if (material == null)
+            {
+                return ServiceResult<MovimentacaoResponseDTO>.Fail(
+                    "MATERIAL_NOT_FOUND",
+                    "Material não encontrado ou inativo.");
+            }
 
-            if (movimentacao.Tipo.ToLower() == "saida")
+            if (dto.Tipo == "Saida" && material.QuantidadeAtual < dto.Quantidade)
             {
-                if (material.QuantidadeAtual < movimentacao.Quantidade) return null;
-                material.QuantidadeAtual -= movimentacao.Quantidade;
+                return ServiceResult<MovimentacaoResponseDTO>.Fail(
+                    "INSUFFICIENT_STOCK",
+                    "Estoque insuficiente para realizar a saída.");
             }
-            else
+
+            material.QuantidadeAtual += dto.Tipo == "Entrada" ? dto.Quantidade : -dto.Quantidade;
+
+            var movimentacao = new Movimentacao
             {
-                material.QuantidadeAtual += movimentacao.Quantidade;
-            }
+                MaterialId = dto.MaterialId,
+                Quantidade = dto.Quantidade,
+                Tipo = dto.Tipo,
+                Data = DateTime.Now,
+                Observacao = dto.Observacao
+            };
 
             _context.Movimentacao.Add(movimentacao);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return new Movimentacao
-            {
-                Id = movimentacao.Id,
-                MaterialId = movimentacao.MaterialId,
-                Quantidade = movimentacao.Quantidade,
-                Tipo = movimentacao.Tipo,
-                Data = movimentacao.Data,
-                Observacao = movimentacao.Observacao
-            };
+            var criada = await ObterPorIdAsync(movimentacao.Id);
+            return ServiceResult<MovimentacaoResponseDTO>.Ok(criada!);
         }
         catch
         {
             await transaction.RollbackAsync();
-            return null;
+            return ServiceResult<MovimentacaoResponseDTO>.Fail(
+                "MOVEMENT_CREATE_FAILED",
+                "Não foi possível processar a movimentação.");
         }
     }
-}
 
+    private static MovimentacaoResponseDTO ToResponseDto(Movimentacao movimentacao)
+    {
+        return new MovimentacaoResponseDTO
+        {
+            Id = movimentacao.Id,
+            MaterialId = movimentacao.MaterialId,
+            NomeMaterial = movimentacao.Material?.Nome ?? "Material Excluído",
+            Quantidade = movimentacao.Quantidade,
+            Tipo = movimentacao.Tipo,
+            Data = movimentacao.Data,
+            Observacao = movimentacao.Observacao
+        };
+    }
+}

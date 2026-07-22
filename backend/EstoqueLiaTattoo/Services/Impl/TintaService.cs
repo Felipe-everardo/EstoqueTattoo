@@ -1,14 +1,13 @@
-﻿using EstoqueLiaTattoo.Data;
+using EstoqueLiaTattoo.Data;
 using EstoqueLiaTattoo.DTOs;
 using EstoqueLiaTattoo.Models;
 using Microsoft.EntityFrameworkCore;
-using static EstoqueLiaTattoo.DTOs.TintaResponseDTO;
 
 namespace EstoqueLiaTattoo.Services.Impl;
 
 public class TintaService : ITintaService
 {
-    public readonly EstoqueLiaTattooContext _context;
+    private readonly EstoqueLiaTattooContext _context;
 
     public TintaService(EstoqueLiaTattooContext context)
     {
@@ -18,36 +17,42 @@ public class TintaService : ITintaService
     public async Task<List<TintaResponseDTO>> ListarItensEmUso()
     {
         return await _context.Tinta
-                .Include(t => t.Material)
-                .Select(t => new TintaResponseDTO
-                {
-                    Id = t.Id,
-                    TintaNome = t.Material.Nome,
-                    Categoria = t.Material.Categoria != null ? t.Material.Categoria.Nome : "Sem Categoria",
-                    PorcentagemRestante = t.PorcentagemRestante,
-                    DataAbertura = t.DataAbertura
-                })
-                .ToListAsync();
+            .Include(t => t.Material)
+            .ThenInclude(m => m.Categoria)
+            .OrderBy(t => t.Material.Nome)
+            .Select(t => ToResponseDto(t))
+            .ToListAsync();
     }
 
-    public async Task<bool> AbrirFrasco(TintaResponseDTO.AbrirTintaDTO dto)
+    public async Task<ServiceResult<TintaResponseDTO>> AbrirFrasco(AbrirTintaDTO dto)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
         try
         {
-            // O TintaId do DTO e o ID do material no estoque.
-            var materialEstoque = await _context.Material.FirstOrDefaultAsync(m => m.Id == dto.TintaId && m.IsAtivo);
+            var materialEstoque = await _context.Material
+                .Include(m => m.Categoria)
+                .FirstOrDefaultAsync(m => m.Id == dto.MaterialId && m.IsAtivo);
 
-            if (materialEstoque == null || materialEstoque.QuantidadeAtual <= 0)
+            if (materialEstoque == null)
             {
-                return false;
+                return ServiceResult<TintaResponseDTO>.Fail(
+                    "MATERIAL_NOT_FOUND",
+                    "Material não encontrado ou inativo.");
+            }
+
+            if (materialEstoque.QuantidadeAtual <= 0)
+            {
+                return ServiceResult<TintaResponseDTO>.Fail(
+                    "INSUFFICIENT_STOCK",
+                    "Não há estoque disponível para enviar este item para a bancada.");
             }
 
             materialEstoque.QuantidadeAtual -= 1;
 
             var novaTinta = new Tinta
             {
-                MaterialId = dto.TintaId,
+                MaterialId = dto.MaterialId,
                 PorcentagemRestante = 100,
                 DataAbertura = DateTime.Now
             };
@@ -55,7 +60,7 @@ public class TintaService : ITintaService
             _context.Tinta.Add(novaTinta);
             _context.Movimentacao.Add(new Movimentacao
             {
-                MaterialId = dto.TintaId,
+                MaterialId = dto.MaterialId,
                 Quantidade = 1,
                 Tipo = "Saida",
                 Data = DateTime.Now,
@@ -64,25 +69,37 @@ public class TintaService : ITintaService
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            return true;
+
+            novaTinta.Material = materialEstoque;
+            return ServiceResult<TintaResponseDTO>.Ok(ToResponseDto(novaTinta));
         }
         catch
         {
             await transaction.RollbackAsync();
-            return false;
+            return ServiceResult<TintaResponseDTO>.Fail(
+                "INK_OPEN_FAILED",
+                "Não foi possível abrir o item na bancada.");
         }
     }
 
-    public async Task<bool> AtualizarPorcentagem(AtualizarConsumoDTO dto)
+    public async Task<ServiceResult<TintaResponseDTO>> AtualizarPorcentagem(int id, AtualizarConsumoTintaDTO dto)
     {
-        var tinta = await _context.Tinta.FindAsync(dto.Id);
+        var tinta = await _context.Tinta
+            .Include(t => t.Material)
+            .ThenInclude(m => m.Categoria)
+            .FirstOrDefaultAsync(t => t.Id == id);
 
-        if (tinta == null) return false;
+        if (tinta == null)
+        {
+            return ServiceResult<TintaResponseDTO>.Fail(
+                "INK_NOT_FOUND",
+                "Item da bancada não encontrado.");
+        }
 
         tinta.PorcentagemRestante = dto.NovaPorcentagem;
 
         await _context.SaveChangesAsync();
-        return true;
+        return ServiceResult<TintaResponseDTO>.Ok(ToResponseDto(tinta));
     }
 
     public async Task<bool> DescartarItem(int id)
@@ -95,5 +112,15 @@ public class TintaService : ITintaService
         return true;
     }
 
-    
+    private static TintaResponseDTO ToResponseDto(Tinta tinta)
+    {
+        return new TintaResponseDTO
+        {
+            Id = tinta.Id,
+            TintaNome = tinta.Material.Nome,
+            Categoria = tinta.Material.Categoria?.Nome ?? "Sem Categoria",
+            PorcentagemRestante = tinta.PorcentagemRestante,
+            DataAbertura = tinta.DataAbertura
+        };
+    }
 }

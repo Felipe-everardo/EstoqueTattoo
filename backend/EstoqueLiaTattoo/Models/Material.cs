@@ -30,6 +30,5 @@ public class Material
     [ForeignKey("CategoriaId")]
     public virtual Categoria? Categoria { get; set; }
 
-    // Ela é apenas para o C# conseguir "enxergar" as movimentações deste material
     public virtual ICollection<Movimentacao> Movimentacoes { get; set; } = new List<Movimentacao>();
 }

@@ -11,8 +11,6 @@ public class Categoria
     [Required(ErrorMessage = "O nome da categoria é obrigatório.")]
     [MaxLength(50)]
     public string Nome { get; set; } = string.Empty;
-
-    // Relacionamento Inverso: Uma categoria tem muitos materiais
     public virtual ICollection<Material>? Materiais { get; set; }
 }
  

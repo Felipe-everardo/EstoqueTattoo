@@ -337,6 +337,10 @@ select {
     grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
 }
 
+.dashboard-stats {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
 .stat-card {
     padding: 12px 14px;
     border-left: 4px solid var(--teal);
@@ -356,6 +360,14 @@ select {
     color: var(--text);
     font-size: 1.45rem;
     line-height: 1;
+}
+
+.danger-card {
+    border-left-color: var(--danger);
+}
+
+.warning-card {
+    border-left-color: var(--warning);
 }
 
 .surface-panel {
@@ -558,7 +570,7 @@ select {
     }
 
     .app-nav {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .nav-section-label,

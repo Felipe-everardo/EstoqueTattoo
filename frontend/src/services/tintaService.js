@@ -6,13 +6,13 @@ const tintaService = {
         return response.data;
     },
 
-    abrir: async (tintaId) => {
-        const response = await api.post('/tintas/abrir', { tintaId });
+    abrir: async (materialId) => {
+        const response = await api.post('/tintas', { materialId });
         return response.data;
     },
 
     atualizarNivel: async (idBancada, novaPorcentagem) => {
-        const response = await api.put('/tintas/atualizar', { id: idBancada, novaPorcentagem });
+        const response = await api.put(`/tintas/${idBancada}/nivel`, { novaPorcentagem });
         return response.data;
     },
 
