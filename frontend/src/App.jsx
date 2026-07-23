@@ -3,6 +3,7 @@ import Materiais from './pages/Materiais';
 import Movimentacoes from './pages/Movimentacoes';
 import Bancada from './pages/Bancada';
 import Dashboard from './pages/Dashboard';
+import Logo from "./assets/LiaGato.png";
 
 function App() {
     return (
@@ -11,14 +12,18 @@ function App() {
                 <aside className="app-sidebar">
                     <div>
                         <div className="brand-block">
-                            <span className="brand-mark">LT</span>
+                            <img
+                                className="brand-mark"
+                                src={Logo}
+                                alt="Logo Lia Tattoo Art"
+                            />
                             <div>
-                                <strong>Lia Tattoo Art</strong>
+                                <strong className="eyebrow">Lia TattooArt</strong>
                                 <small>Studio inventory</small>
                             </div>
                         </div>
 
-                        <nav className="app-nav" aria-label="Navegacao principal">
+                        <nav className="app-nav" aria-label="Navegação principal">
                             <span className="nav-section-label">Estoque</span>
                             <NavLink className={({ isActive }) => isActive ? 'app-nav-link active' : 'app-nav-link'} to="/">
                                 <span className="nav-indicator" />
@@ -34,7 +39,7 @@ function App() {
                             </NavLink>
                             <NavLink className={({ isActive }) => isActive ? 'app-nav-link active' : 'app-nav-link'} to="/movimentacoes">
                                 <span className="nav-indicator" />
-                                Movimentacoes
+                                Movimentações
                             </NavLink>
                         </nav>
                     </div>

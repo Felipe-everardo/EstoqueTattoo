@@ -24,7 +24,7 @@ const Dashboard = () => {
             setResumo(dados);
         } catch (error) {
             console.error('Erro ao carregar dashboard:', error);
-            setErro('Nao foi possivel carregar o resumo. Confira se a API esta rodando.');
+            setErro('Não foi possível carregar o resumo. Confira se a API está rodando.');
         } finally {
             setCarregando(false);
         }
@@ -38,16 +38,16 @@ const Dashboard = () => {
         <div className="page-stack">
             <header className="page-header dashboard-hero">
                 <div>
-                    <span className="eyebrow">Visao geral</span>
+                    <span className="eyebrow">Visão geral</span>
                     <h1>Dashboard do estoque</h1>
-                    <p>Acompanhe rapidamente os principais sinais operacionais do estudio: saldo, alertas, bancada e historico recente.</p>
+                    <p>Acompanhe rapidamente os principais sinais operacionais do estúdio: saldo, alertas, bancada e histórico recente.</p>
                 </div>
-                <div className="header-actions compact-actions">
+                {/* <div className="header-actions compact-actions">
                     <button type="button" className="btn btn-outline-dark" onClick={carregarResumo} disabled={carregando}>
                         {carregando ? 'Atualizando...' : 'Atualizar'}
                     </button>
                     <Link className="btn btn-primary" to="/materiais">Ver estoque</Link>
-                </div>
+                </div> */}
             </header>
 
             {erro && <div className="alert alert-danger">{erro}</div>}
@@ -58,7 +58,7 @@ const Dashboard = () => {
                     <strong>{resumo.totalMateriais}</strong>
                 </div>
                 <div className="stat-card danger-card">
-                    <span>Abaixo do minimo</span>
+                    <span>Abaixo do mínimo</span>
                     <strong>{resumo.materiaisCriticos}</strong>
                 </div>
                 <div className="stat-card">
@@ -70,7 +70,7 @@ const Dashboard = () => {
                     <strong>{resumo.tintasBaixas}</strong>
                 </div>
                 <div className="stat-card">
-                    <span>Movimentacoes</span>
+                    <span>Movimentações</span>
                     <strong>{resumo.totalMovimentacoes}</strong>
                 </div>
             </section>
@@ -78,10 +78,10 @@ const Dashboard = () => {
             <section className="surface-panel">
                 <div className="panel-header">
                     <div>
-                        <h2>Ultimas movimentacoes</h2>
-                        <p>Resumo das operacoes mais recentes feitas no estoque e na bancada.</p>
+                        <h2>Últimas movimentações</h2>
+                        <p>Resumo das operações mais recentes feitas no estoque e na bancada.</p>
                     </div>
-                    <Link className="btn btn-outline-dark btn-sm" to="/movimentacoes">Historico completo</Link>
+                    <Link className="btn btn-outline-dark btn-sm" to="/movimentacoes">Histórico completo</Link>
                 </div>
 
                 <div className="table-responsive">
@@ -107,7 +107,7 @@ const Dashboard = () => {
                             {!carregando && resumo.ultimasMovimentacoes.length === 0 && (
                                 <tr>
                                     <td colSpan="5" className="text-center text-muted py-4">
-                                        Nenhuma movimentacao registrada.
+                                        Nenhuma movimentação registrada.
                                     </td>
                                 </tr>
                             )}
@@ -118,7 +118,7 @@ const Dashboard = () => {
                                     <td>{item.nomeMaterial}</td>
                                     <td>
                                         <span className={`status-pill ${item.tipo === 'Saida' ? 'danger' : 'success'}`}>
-                                            {item.tipo}
+                                            {item.tipo === 'Saida' ? 'Saída' : item.tipo}
                                         </span>
                                     </td>
                                     <td>{item.quantidade}</td>

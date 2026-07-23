@@ -23,7 +23,7 @@ const Bancada = () => {
             setMateriaisEstoque(dadosMateriais);
         } catch (error) {
             console.error('Erro ao carregar bancada:', error);
-            setErro('Nao foi possivel carregar a bancada. Confira se a API esta rodando.');
+            setErro('Não foi possível carregar a bancada. Confira se a API está rodando.');
         } finally {
             setCarregando(false);
         }
@@ -39,7 +39,7 @@ const Bancada = () => {
 
     const handleAbrirTinta = async () => {
         if (!materialSelecionado) {
-            setErro('Selecione uma item do estoque antes de abrir um frasco.');
+            setErro('Selecione um item do estoque antes de abrir um frasco.');
             return;
         }
 
@@ -53,7 +53,7 @@ const Bancada = () => {
             await carregarDados();
         } catch (error) {
             console.error('Erro ao abrir tinta:', error);
-            setErro('Nao foi possivel abrir a tinta. Verifique se existe estoque disponivel.');
+            setErro('Não foi possível abrir a tinta. Verifique se existe estoque disponível.');
         } finally {
             setSalvando(false);
         }
@@ -69,10 +69,10 @@ const Bancada = () => {
         try {
             setErro('');
             await tintaService.atualizarNivel(id, Number(valorFinal));
-            setSucesso('Nivel da tinta atualizado.');
+            setSucesso('Nível da tinta atualizado.');
         } catch (error) {
             console.error('Erro ao salvar nivel:', error);
-            setErro('Nao foi possivel salvar o nivel da tinta.');
+            setErro('Não foi possível salvar o nível da tinta.');
             await carregarDados();
         }
     };
@@ -86,7 +86,7 @@ const Bancada = () => {
             await carregarDados();
         } catch (error) {
             console.error('Erro ao descartar tinta:', error);
-            setErro('Nao foi possivel remover a tinta da bancada.');
+            setErro('Não foi possível remover a tinta da bancada.');
         }
     };
 
@@ -102,7 +102,7 @@ const Bancada = () => {
         <div className="page-stack">
             <header className="page-header">
                 <div>
-                    <span className="eyebrow">Operacao do estudio</span>
+                    <span className="eyebrow">Operação do estúdio</span>
                     <h1>Bancada de tintas e agulhas</h1>
                     <p>Controle as tintas e agulhas abertas, acompanhe consumo e retire frascos e agulhas que acabaram.</p>
                 </div>
@@ -134,7 +134,7 @@ const Bancada = () => {
                     <strong>{tintasEmUso.length}</strong>
                 </div>
                 <div className="stat-card">
-                    <span>Precisam de atencao</span>
+                    <span>Precisam de atenção</span>
                     <strong>{tintasBaixas}</strong>
                 </div>
             </section>
@@ -170,7 +170,7 @@ const Bancada = () => {
                                 </div>
                             </div>
 
-                            <label className="form-label subtle-label">Nivel restante</label>
+                            <label className="form-label subtle-label">Nível restante</label>
                             <input
                                 type="range"
                                 className="form-range"
@@ -185,7 +185,7 @@ const Bancada = () => {
 
                             <div className="ink-card-footer">
                                 <span>Aberta em {new Date(tinta.dataAbertura).toLocaleDateString()}</span>
-                                {tinta.porcentagemRestante <= 20 && <strong>Reposicao em breve</strong>}
+                                {tinta.porcentagemRestante <= 20 && <strong>Reposição em breve</strong>}
                             </div>
                         </article>
                     );

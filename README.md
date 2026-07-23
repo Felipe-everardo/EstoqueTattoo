@@ -100,7 +100,6 @@ SQLite
 
 - [Arquitetura](docs/architecture.md)
 - [Endpoints da API](docs/api.md)
-- [Opções de demonstração](docs/demo.md)
 
 ## Como Rodar o Backend
 

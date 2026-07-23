@@ -14,7 +14,7 @@ const Movimentacoes = () => {
             setHistorico(dadosHistorico);
         } catch (error) {
             console.error('Erro ao carregar movimentacoes:', error);
-            setErro('Nao foi possivel carregar as movimentacoes. Confira se a API esta rodando.');
+            setErro('Não foi possível carregar as movimentações. Confira se a API está rodando.');
         } finally {
             setCarregando(false);
         }
@@ -32,8 +32,8 @@ const Movimentacoes = () => {
             <header className="page-header">
                 <div>
                     <span className="eyebrow">Fluxo de estoque</span>
-                    <h1>Movimentacoes</h1>
-                    <p>Historico automatico gerado por entradas no estoque e envios para a bancada.</p>
+                    <h1>Movimentações</h1>
+                    <p>Histórico automático gerado por entradas no estoque e envios para a bancada.</p>
                 </div>
 
                 <button type="button" className="btn btn-outline-dark" onClick={carregarHistorico} disabled={carregando}>
@@ -53,7 +53,7 @@ const Movimentacoes = () => {
                     <strong>{entradas}</strong>
                 </div>
                 <div className="stat-card">
-                    <span>Saidas</span>
+                    <span>Saídas</span>
                     <strong>{saidas}</strong>
                 </div>
             </section>
@@ -61,8 +61,8 @@ const Movimentacoes = () => {
             <section className="surface-panel">
                 <div className="panel-header">
                     <div>
-                        <h2>Historico recente</h2>
-                        <p>Cada registro nasce de uma acao feita em materiais ou bancada.</p>
+                        <h2>Histórico recente</h2>
+                        <p>Cada registro nasce de uma ação feita em materiais ou bancada.</p>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@ const Movimentacoes = () => {
                             {carregando && (
                                 <tr>
                                     <td colSpan="5" className="text-center text-muted py-4">
-                                        Carregando movimentacoes...
+                                        Carregando movimentações...
                                     </td>
                                 </tr>
                             )}
@@ -89,7 +89,7 @@ const Movimentacoes = () => {
                             {!carregando && historico.length === 0 && (
                                 <tr>
                                     <td colSpan="5" className="text-center text-muted py-4">
-                                        Nenhuma movimentacao registrada.
+                                        Nenhuma movimentação registrada.
                                     </td>
                                 </tr>
                             )}
@@ -100,7 +100,7 @@ const Movimentacoes = () => {
                                     <td>{item.nomeMaterial}</td>
                                     <td>
                                         <span className={`status-pill ${item.tipo === 'Saida' ? 'danger' : 'success'}`}>
-                                            {item.tipo}
+                                            {item.tipo === 'Saida' ? 'Saída' : item.tipo}
                                         </span>
                                     </td>
                                     <td>{item.quantidade}</td>

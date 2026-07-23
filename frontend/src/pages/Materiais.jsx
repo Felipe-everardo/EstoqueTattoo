@@ -36,7 +36,7 @@ const Materiais = () => {
             setCategorias(dadosCategorias);
         } catch (error) {
             console.error('Erro ao carregar materiais:', error);
-            setErro('Nao foi possivel carregar os dados. Confira se a API esta rodando.');
+            setErro('Não foi possível carregar os dados. Confira se a API está rodando.');
         } finally {
             setCarregando(false);
         }
@@ -100,7 +100,7 @@ const Materiais = () => {
             await carregarDados();
         } catch (error) {
             console.error('Erro ao remover material:', error);
-            setErro('Nao foi possivel remover o material. Tente novamente em alguns instantes.');
+            setErro('Não foi possível remover o material. Tente novamente em alguns instantes.');
         } finally {
             setRemovendo(false);
         }
@@ -113,7 +113,7 @@ const Materiais = () => {
             material,
             tipo,
             quantidade: 1,
-            observacao: tipo === 'Entrada' ? 'Reposicao feita em materiais' : 'Baixa feita em materiais'
+            observacao: tipo === 'Entrada' ? 'Reposição feita em materiais' : 'Baixa feita em materiais'
         });
     };
 
@@ -141,12 +141,13 @@ const Materiais = () => {
                 observacao: movimentacaoEstoque.observacao
             });
 
-            setSucesso(`${movimentacaoEstoque.tipo} registrada automaticamente no historico.`);
+            const tipoExibido = movimentacaoEstoque.tipo === 'Saida' ? 'Saída' : movimentacaoEstoque.tipo;
+            setSucesso(`${tipoExibido} registrada automaticamente no histórico.`);
             setMovimentacaoEstoque(null);
             await carregarDados();
         } catch (error) {
             console.error('Erro ao movimentar estoque:', error);
-            setErro('Nao foi possivel movimentar o estoque. Verifique a quantidade disponivel e tente novamente.');
+            setErro('Não foi possível movimentar o estoque. Verifique a quantidade disponível e tente novamente.');
         } finally {
             setSalvandoMovimentacao(false);
         }
@@ -166,7 +167,7 @@ const Materiais = () => {
                 <div>
                     <span className="eyebrow">Inventario</span>
                     <h1>Materiais</h1>
-                    <p>Consulte o saldo dos itens do estudio e cadastre novos materiais com categoria e estoque minimo.</p>
+                    <p>Consulte o saldo dos itens do estúdio e cadastre novos materiais com categoria e estoque mínimo.</p>
                 </div>
                 <div className="header-actions">
                     <input
@@ -191,7 +192,7 @@ const Materiais = () => {
                     <strong>{materiais.length}</strong>
                 </div>
                 <div className="stat-card">
-                    <span>Abaixo do minimo</span>
+                    <span>Abaixo do mínimo</span>
                     <strong>{itensBaixoEstoque}</strong>
                 </div>
             </section>
@@ -200,7 +201,7 @@ const Materiais = () => {
                 <div className="panel-header">
                     <div>
                         <h2>Estoque atual</h2>
-                        <p>Itens em vermelho precisam de reposicao ou revisao do minimo configurado.</p>
+                        <p>Itens em vermelho precisam de reposição ou revisão do mínimo configurado.</p>
                     </div>
                 </div>
 
@@ -211,9 +212,9 @@ const Materiais = () => {
                                 <th>Material</th>
                                 <th>Categoria</th>
                                 <th>Qtd atual</th>
-                                <th>Qtd minima</th>
+                                <th>Qtd. mínima</th>
                                 <th>Status</th>
-                                <th>Acoes</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -261,7 +262,7 @@ const Materiais = () => {
                                                     className="btn btn-outline-dark btn-sm"
                                                     onClick={() => abrirMovimentacaoEstoque(material, 'Saida')}
                                                 >
-                                                    Saida
+                                                    Saída
                                                 </button>
                                                 <button
                                                     type="button"
@@ -338,7 +339,7 @@ const Materiais = () => {
                                     />
                                 </div>
                                 <div className="col-6 mb-3">
-                                    <label className="form-label">Qtd minima</label>
+                                    <label className="form-label">Qtd. mínima</label>
                                     <input
                                         type="number"
                                         name="quantidadeMinima"
@@ -369,8 +370,8 @@ const Materiais = () => {
                     <div className="surface-panel modal-panel modal-panel-sm">
                         <div className="panel-header">
                             <div>
-                                <h2>{movimentacaoEstoque.tipo} de estoque</h2>
-                                <p>Essa acao atualiza o saldo e gera uma movimentacao automaticamente.</p>
+                                <h2>{movimentacaoEstoque.tipo === 'Saida' ? 'Saída' : movimentacaoEstoque.tipo} de estoque</h2>
+                                <p>Essa ação atualiza o saldo e gera uma movimentação automaticamente.</p>
                             </div>
                         </div>
 
@@ -394,7 +395,7 @@ const Materiais = () => {
                             </div>
 
                             <div className="mb-3">
-                                <label className="form-label">Observacao</label>
+                                <label className="form-label">Observação</label>
                                 <input
                                     type="text"
                                     className="form-control control-input"
@@ -427,7 +428,7 @@ const Materiais = () => {
                         <div className="panel-header">
                             <div>
                                 <h2>Remover material</h2>
-                                <p>Essa acao remove o item da lista ativa, mas preserva o historico de movimentacoes.</p>
+                                <p>Essa ação remove o item da lista ativa, mas preserva o histórico de movimentações.</p>
                             </div>
                         </div>
 
