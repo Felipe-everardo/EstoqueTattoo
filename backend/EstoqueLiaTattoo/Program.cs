@@ -43,6 +43,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<EstoqueLiaTattooContext>();
     context.Database.Migrate();
+    await DemoDataSeeder.SeedAsync(context);
 }
 
 if (app.Environment.IsDevelopment())
