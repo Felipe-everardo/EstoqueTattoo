@@ -6,6 +6,13 @@ Sistema full-stack para controle de estoque de um estúdio de tatuagem. A aplica
 
 Este projeto foi desenvolvido como estudo prático de integração entre front-end React e uma API ASP.NET Core, com foco em organização de código, separação de responsabilidades e persistência com Entity Framework Core.
 
+## Demo
+
+- [Acessar aplicação web](https://estoque-tattoo.vercel.app)
+- [Ver status da API](https://estoquetattoo-api.onrender.com/health)
+
+> Ambiente demonstrativo publicado com frontend na Vercel e API no Render. A primeira abertura pode levar alguns segundos porque o serviço gratuito da API pode precisar iniciar.
+
 ## Demonstração Visual
 
 > As imagens abaixo podem ser atualizadas com capturas reais da aplicação rodando localmente.
@@ -179,8 +186,8 @@ GET    /api/dashboard/resumo
 
 - Adicionar autenticação para separar perfis de usuário.
 - Adicionar filtros avançados no histórico de movimentações.
-- Publicar uma versão demonstrável da aplicação.
+- Evoluir a persistência da demo para um banco hospedado.
 
 ## Status
 
-Projeto em evolução, desenvolvido para estudo e portfólio.
+Projeto em evolução, desenvolvido para estudo e portfólio, com versão demonstrativa publicada.

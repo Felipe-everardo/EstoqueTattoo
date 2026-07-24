@@ -1,6 +1,26 @@
 import { useEffect, useState } from 'react';
 import movimentacaoService from '../services/movimentacaoService';
 
+const formatadorDia = new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit'
+});
+
+const formatadorHora = new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+});
+
+const formatarData = (valor) => {
+    const data = new Date(valor);
+
+    return {
+        dia: formatadorDia.format(data),
+        hora: formatadorHora.format(data)
+    };
+};
+
 const Movimentacoes = () => {
     const [historico, setHistorico] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -36,7 +56,7 @@ const Movimentacoes = () => {
                     <p>Histórico automático gerado por entradas no estoque e envios para a bancada.</p>
                 </div>
 
-                <button type="button" className="btn btn-outline-dark" onClick={carregarHistorico} disabled={carregando}>
+                <button type="button" className="btn btn-primary" onClick={carregarHistorico} disabled={carregando}>
                     {carregando ? 'Atualizando...' : 'Atualizar'}
                 </button>
             </header>
@@ -66,7 +86,7 @@ const Movimentacoes = () => {
                     </div>
                 </div>
 
-                <div className="table-responsive">
+                <div className="table-responsive table-scroll">
                     <table className="table app-table mb-0">
                         <thead>
                             <tr>
@@ -94,19 +114,28 @@ const Movimentacoes = () => {
                                 </tr>
                             )}
 
-                            {historico.map((item) => (
-                                <tr key={item.id}>
-                                    <td>{new Date(item.data).toLocaleString()}</td>
-                                    <td>{item.nomeMaterial}</td>
-                                    <td>
-                                        <span className={`status-pill ${item.tipo === 'Saida' ? 'danger' : 'success'}`}>
-                                            {item.tipo === 'Saida' ? 'Saída' : item.tipo}
-                                        </span>
-                                    </td>
-                                    <td>{item.quantidade}</td>
-                                    <td>{item.observacao || '-'}</td>
-                                </tr>
-                            ))}
+                            {historico.map((item) => {
+                                const dataFormatada = formatarData(item.data);
+
+                                return (
+                                    <tr key={item.id}>
+                                        <td data-label="Data">
+                                            <time className="movement-date" dateTime={item.data}>
+                                                <span>{dataFormatada.dia}</span>
+                                                <span>{dataFormatada.hora}</span>
+                                            </time>
+                                        </td>
+                                        <td data-label="Material"><strong>{item.nomeMaterial}</strong></td>
+                                        <td data-label="Tipo">
+                                            <span className={`status-pill ${item.tipo === 'Saida' ? 'danger' : 'success'}`}>
+                                                {item.tipo === 'Saida' ? 'Saída' : item.tipo}
+                                            </span>
+                                        </td>
+                                        <td data-label="Quantidade">{item.quantidade}</td>
+                                        <td data-label="Origem" className="movement-origin">{item.observacao || '-'}</td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

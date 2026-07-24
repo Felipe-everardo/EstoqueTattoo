@@ -111,6 +111,7 @@ const Bancada = () => {
                         className="form-select control-input"
                         value={materialSelecionado}
                         onChange={(event) => setMaterialSelecionado(event.target.value)}
+                        disabled={carregando || salvando}
                     >
                         <option value="">Selecione um item do estoque</option>
                         {materiaisEstoque.map((material) => (
@@ -119,8 +120,13 @@ const Bancada = () => {
                             </option>
                         ))}
                     </select>
-                    <button className="btn btn-primary" onClick={handleAbrirTinta} disabled={salvando || carregando}>
-                        {salvando ? 'Abrindo...' : 'Abrir frasco'}
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleAbrirTinta}
+                        disabled={salvando || carregando}
+                        aria-busy={salvando || carregando}
+                    >
+                        {carregando ? 'Carregando...' : salvando ? 'Abrindo...' : 'Abrir frasco'}
                     </button>
                 </div>
             </header>
@@ -131,11 +137,11 @@ const Bancada = () => {
             <section className="stats-grid compact">
                 <div className="stat-card">
                     <span>Tintas em uso</span>
-                    <strong>{tintasEmUso.length}</strong>
+                    <strong>{carregando ? '—' : tintasEmUso.length}</strong>
                 </div>
                 <div className="stat-card">
                     <span>Precisam de atenção</span>
-                    <strong>{tintasBaixas}</strong>
+                    <strong>{carregando ? '—' : tintasBaixas}</strong>
                 </div>
             </section>
 

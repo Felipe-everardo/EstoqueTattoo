@@ -205,7 +205,7 @@ const Materiais = () => {
                     </div>
                 </div>
 
-                <div className="table-responsive">
+                <div className="table-responsive table-scroll">
                     <table className="table app-table mb-0">
                         <thead>
                             <tr>
@@ -239,37 +239,46 @@ const Materiais = () => {
 
                                 return (
                                     <tr key={material.id}>
-                                        <td><strong>{material.nome}</strong></td>
-                                        <td>{material.nomeCategoria}</td>
-                                        <td>{material.quantidadeAtual}</td>
-                                        <td>{material.quantidadeMinima}</td>
-                                        <td>
+                                        <td data-label="Material"><strong>{material.nome}</strong></td>
+                                        <td data-label="Categoria">{material.nomeCategoria}</td>
+                                        <td data-label="Qtd. atual">{material.quantidadeAtual}</td>
+                                        <td data-label="Qtd. mínima">{material.quantidadeMinima}</td>
+                                        <td data-label="Status">
                                             <span className={`status-pill ${precisaRepor ? 'danger' : 'success'}`}>
                                                 {precisaRepor ? 'Repor' : 'OK'}
                                             </span>
                                         </td>
-                                        <td>
-                                            <div className="d-flex gap-2 flex-wrap">
+                                        <td data-label="Ações" className="actions-cell">
+                                            <div className="table-actions">
                                                 <button
                                                     type="button"
-                                                    className="btn btn-outline-success btn-sm"
+                                                    className="btn btn-outline-success btn-sm action-button"
                                                     onClick={() => abrirMovimentacaoEstoque(material, 'Entrada')}
+                                                    aria-label={`Registrar entrada de ${material.nome}`}
+                                                    title="Registrar entrada"
                                                 >
-                                                    Entrada
+                                                    <span className="action-icon" aria-hidden="true">+</span>
+                                                    <span className="action-label">Entrada</span>
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    className="btn btn-outline-dark btn-sm"
+                                                    className="btn btn-outline-dark btn-sm action-button"
                                                     onClick={() => abrirMovimentacaoEstoque(material, 'Saida')}
+                                                    aria-label={`Registrar saída de ${material.nome}`}
+                                                    title="Registrar saída"
                                                 >
-                                                    Saída
+                                                    <span className="action-icon" aria-hidden="true">−</span>
+                                                    <span className="action-label">Saída</span>
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    className="btn btn-outline-danger btn-sm"
+                                                    className="btn btn-outline-danger btn-sm action-button"
                                                     onClick={() => setMaterialParaRemover(material)}
+                                                    aria-label={`Remover ${material.nome}`}
+                                                    title="Remover material"
                                                 >
-                                                    Remover
+                                                    <span className="action-icon" aria-hidden="true">×</span>
+                                                    <span className="action-label">Remover</span>
                                                 </button>
                                             </div>
                                         </td>
